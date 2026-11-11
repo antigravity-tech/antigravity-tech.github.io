@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIMED · What the Averages Hide</title>
+<meta name="description" content="Monocular metric depth models still fail on everyday scenes, mostly on scale. Per-image failure rates, structure vs. scale, and shared failures for 11 models.">
+<meta property="og:title" content="What the Averages Hide: metric depth models still fail, mostly on scale">
+<meta property="og:description" content="The best of 18 evaluations has mean δ1 0.875, yet 1 in 13 images still fails. 98.3% of failures are a wrong global scale, not a wrong shape.">
+<meta property="og:image" content="assets/quiz_empty_rgb.jpg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="tag">DIMED · DIagnosing MEtric Depth</p>
+    <h1>What the Averages Hide</h1>
+    <p class="subtitle">Monocular Metric Depth Models Still Fail in Everyday Scenes, Mostly on Scale</p>
+    <p class="authors">
+      <span><a href="https://hualie.github.io/">Hualie Jiang</a><sup>1</sup></span>,
+      <span><a href="https://openreview.net/profile?id=~Yujie_Luo6">Yujie Luo</a><sup>1,2</sup></span>,
+      <span><a href="https://indu1ge.github.io/ziyangsong/">Ziyang Song</a><sup>1</sup></span>,
+      <span><a href="https://openreview.net/profile?id=~Ximeng_Li1">Ximeng Li</a><sup>1</sup></span>,
+      <span><a href="https://openreview.net/profile?id=~Zhiqiang_Lou1">Zhiqiang Lou</a><sup>1</sup></span>,
+      <span><a href="https://openreview.net/profile?id=~Rui_Xu20">Rui Xu</a><sup>1</sup></span>
+    </p>
+    <p class="affils"><sup>1</sup>Antigravity Tech, Insta360<span class="sep">·</span><sup>2</sup>Nanyang Technological University</p>
+    <nav class="links">
+      <a class="btn" href="{{ARXIV_URL}}">Paper (arXiv)</a>
+      <a class="btn" href="https://github.com/antigravity-tech/DIMED">Code</a>
+      <a class="btn" href="https://huggingface.co/datasets/hljiang/DIMED">Data</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="teaser" id="quiz">
+  <h2>How far away is this table?</h2>
+  <div class="quizgrid">
+    <img src="assets/quiz_empty_rgb.jpg" alt="An empty table seen from a robot-mounted camera">
+    <div class="quizctl">
+      <p>A camera looks down at an empty table. Guess the typical distance from the camera to the visible surface.</p>
+      <input type="range" min="-0.7" max="0.7" step="0.01" value="0" aria-label="your guess in metres">
+      <p class="guess">1.00 m</p>
+      <button class="btn">Reveal</button>
+      <div class="reveal"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Same table, same model: objects can fix the scale, but not always</h2>
+  <div class="compare-switch">
+    <button class="on" data-target="cmp" data-set="empty" data-cbar="assets/quiz_colorbar.png" data-cap="Empty table. Drag: left = ground truth, right = MoGe-2. MoGe-2 places the table <b>2.8× too far</b> (δ<sub>1</sub> 0.00).">empty table</button>
+    <button data-target="cmp" data-set="objects" data-cbar="assets/quiz_colorbar.png" data-cap="Objects added, same view. MoGe-2 is now nearly right: 0.61 m for a true 0.65 m (δ<sub>1</sub> 0.94).">same view, objects added</button>
+    <button data-target="cmp" data-set="other" data-cbar="assets/quiz_other_colorbar.png" data-cap="Another table, with cans, a jug and boxes in view. MoGe-2 still places it <b>1.4× too far</b> (0.83 m for a true 0.58 m, δ<sub>1</sub> 0.00), and with ground-truth intrinsics 10 of the 11 architectures fail on this image too (only MA-DepthMap passes). Objects help, but they do not guarantee the right scale.">another table with objects</button>
+  </div>
+  <div class="compare" id="cmp">
+    <img class="layer base" src="assets/quiz_empty_pred.jpg" data-empty="assets/quiz_empty_pred.jpg" data-objects="assets/quiz_objects_pred.jpg" data-other="assets/quiz_other_pred.jpg" alt="MoGe-2 depth">
+    <img class="layer top" src="assets/quiz_empty_gt.jpg" data-empty="assets/quiz_empty_gt.jpg" data-objects="assets/quiz_objects_gt.jpg" data-other="assets/quiz_other_gt.jpg" alt="ground-truth depth">
+    <div class="handle"><span>⇆</span></div>
+    <span class="tagl">ground truth</span><span class="tagr">MoGe-2</span>
+  </div>
+  <img class="cbar" id="cmp-cbar" src="assets/quiz_colorbar.png" alt="depth colour scale">
+  <p class="note" id="cmp-cap">Empty table. Drag: left = ground truth, right = MoGe-2. MoGe-2 places the table <b>2.8× too far</b> (δ<sub>1</sub> 0.00).</p>
+  <p class="lead">The geometry is right in all three: what the model lacks is a reliable cue for <b>how big</b> the scene is.</p>
+</section>
+
+<section>
+  <div class="stats">
+    <div class="stat"><span class="num">0.875 <small>yet</small> 1&nbsp;in&nbsp;13</span><span class="lbl">The best of 18 evaluations has mean δ<sub>1</sub> 0.875, yet still fails on 7.7% of images (metric δ<sub>1</sub> &lt; 0.5).</span></div>
+    <div class="stat"><span class="num">98.3%</span><span class="lbl">of those failures pass once a single global scale is corrected. The shape is right; the scale is wrong.</span></div>
+    <div class="stat"><span class="num">~40%</span><span class="lbl">of the top models' error falls on the 7.3% of images that most of the 11 models fail, concentrated in a few scenes.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Why it matters</h2>
+  <p>A robot that grasps, an AR app that places furniture, or a SLAM system initialised from one frame needs metres, not relative depth. A depth map with the right shape but 2.8× the wrong scale puts the cup out of reach. Dataset averages hide this: a model can score well on average while a fixed set of everyday views, such as an empty table or a blank wall, defeats it every time.</p>
+</section>
+
+
+
+<section>
+  <h2>Most models fail on the same images</h2>
+  <p>Pick an image and a model. Ground truth and prediction share one colour scale. White: no ground truth, or sky / invalid region as predicted by the model itself (MoGe-2, MoGe-3, MA-PointMap, FoundationGeo, DA3METRIC output such a mask; the other models do not). In almost all of these failures the shape is right and only the scale is off.</p>
+  <div id="wallviewer">
+    <div class="groups">
+      <button data-g="no_cue" class="on">No size cue: all 11 models fail</button>
+      <button data-g="with_cue">Objects in view: still 6–10 of 11 fail</button>
+    </div>
+    <p class="note group-note"></p>
+    <div class="thumbs"></div>
+    <div class="models"></div>
+    <div class="vgrid">
+      <figure><img class="v-rgb" alt="input image"><figcaption class="cap-img"></figcaption></figure>
+      <figure><img class="v-gt" alt="ground-truth depth"><figcaption class="cap-gt"></figcaption></figure>
+      <figure><img class="v-pred" alt="predicted depth"><figcaption class="cap-pred"></figcaption></figure>
+    </div>
+    <img class="v-cbar cbar" alt="depth colour scale">
+  </div>
+  <div class="takeaways observe">
+    <div><b>They fail in the same direction.</b> On 66% of the images that at least 6 of the 11 models fail, every failing model errs the same way. In the examples here, the HAMMER tables and most indoor views are placed too far, and the open DIODE outdoor views with sky mostly too near.</div>
+    <div><b>A pass is not always a cue.</b> MA-DepthMap gets most HAMMER tables right, but not because it reads the scene better: on HAMMER its depth is consistently about 30% nearer than that of the other models, which cancels their shared "too far" error. On the frames with objects it fails more often than the others (35% vs. a median of 19%).</div>
+    <div><b>Objects in view are not enough.</b> In the second group a person can judge the size from furniture, monitors or buildings, yet 6 to 10 of the 11 models still miss it, again mostly in one direction.</div>
+  </div>
+</section>
+
+<section>
+  <h2>Where each model fails</h2>
+  <div id="heat-controls" class="controls">
+    <label><input type="radio" name="hmetric" value="fail" checked> failure rate</label>
+    <label><input type="radio" name="hmetric" value="bias"> scale bias</label>
+    <span class="sep">|</span>
+    <label><input type="radio" name="hcond" value="K" checked> with intrinsics</label>
+    <label><input type="radio" name="hcond" value="noK"> without intrinsics</label>
+  </div>
+  <div class="tablewrap"><table id="heat" class="heat"></table></div>
+  <p class="note" id="heat-legend"></p>
+  <p>The averages look similar across models; the failures do not. Most of them sit on DIODE and HAMMER, and on HAMMER almost every model errs in the same direction.</p>
+</section>
+
+<section>
+  <h2>What averages do not show</h2>
+  <p>Evaluations average a metric score and a scale-aligned score per dataset. DIMED keeps, for every image, the metric δ<sub>1</sub>, the scale-aligned δ<sub>1</sub> and the alignment scale <code>s*</code>, and reports:</p>
+  <ul>
+    <li><b>Failure rate</b>: how many images are badly wrong, not just the mean.</li>
+    <li><b>Bias, stability, absolute error of ln s*</b>: which way the scale is wrong and whether one global correction would fix it.</li>
+    <li><b>Shared vs. model-specific failures</b>: how many models fail on each image.</li>
+  </ul>
+  <figure><img src="assets/fig2_rel_vs_scale.svg" alt="Per-image metric error against the alignment scale"><figcaption>Per image, metric accuracy is decided mainly by whether <code>s*</code> falls inside [0.8, 1.25] (shaded); errors in structure are small.</figcaption></figure>
+</section>
+
+<section>
+  <h2>Main results</h2>
+  <p>18 model evaluations on the 7 everyday-scene benchmarks used by MoGe-2 (4,406 images), datasets weighted equally. Click a column to sort.</p>
+  <div class="controls">
+    <label><input type="radio" name="cond" value="all" checked> all</label>
+    <label><input type="radio" name="cond" value="K"> with intrinsics</label>
+    <label><input type="radio" name="cond" value="noK"> without intrinsics</label>
+  </div>
+  <div class="tablewrap"><table id="t2"><thead></thead><tbody></tbody></table></div>
+  <p class="note">↑/↓: higher/lower is better; →0: closer to zero is better. Bias = mean(ln(1/s*)), positive = depth overestimated. Stability = std(ln s*) within a dataset.</p>
+  <div class="try">
+    <p><b>Try it on your model.</b> Evaluate it with our code, then split its errors by our per-image shared-failure labels, without re-running the 11 baselines:</p>
+<pre>git clone https://github.com/antigravity-tech/DIMED && cd DIMED/eval
+bash run.sh &lt;your_model&gt; 0
+python ../analysis/stratify_new_model.py ../results/shared_failure_labels.csv &lt;results&gt;/main/&lt;run&gt;</pre>
+  </div>
+</section>
+
+<section>
+  <h2>Image content moves the scale</h2>
+  <figure><img src="assets/fig7_objects_vs_pattern.svg" alt="Change in scale error when objects or printed patterns are added"><figcaption>(a) On paired HAMMER frames, adding objects reduces the scale error of 10 of 11 models, also when the scale is solved on the table and walls alone. (b) TUM RGB-D sequences with printed posters (separate recordings) go with underestimated depth.</figcaption></figure>
+</section>
+
+<section>
+  <h2>Intrinsics and model size help, but not enough</h2>
+  <figure><img src="assets/fig8_intrinsics.svg" alt="Effect of ground-truth intrinsics"><figcaption>Ground-truth intrinsics raise metric δ<sub>1</sub> for every model that can run without them. Even with intrinsics and its largest public size, every architecture still fails on at least 8% of images.</figcaption></figure>
+</section>
+
+<section>
+  <h2>What to do with this</h2>
+  <div class="takeaways">
+    <div><b>Using metric depth?</b> Do not trust the absolute scale on views without objects of known size (empty tables, blank walls). One known length, or one scale per sequence, fixes most failures, because the shape is usually right.</div>
+    <div><b>Building a model?</b> Report the failure rate and the bias of ln s* next to the mean, and check your errors against our shared-failure labels: they show whether you fixed the hard images or only improved the rest.</div>
+    <div><b>Supplying intrinsics?</b> They help the scale, but they are not an upper bound: for models that solve the focal length after the network, true intrinsics can make the structure slightly worse.</div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>Code and data</h2>
+  <ul>
+    <li><b>Code</b>: <a href="https://github.com/antigravity-tech/DIMED">github.com/antigravity-tech/DIMED</a>. Adapters for 11 models on top of an unmodified MoGe evaluation, and scripts that recompute the paper's numbers.</li>
+    <li><b>Data</b>: <a href="https://huggingface.co/datasets/hljiang/DIMED">huggingface.co/datasets/hljiang/DIMED</a>. Per-image results of all 36 evaluations, per-image shared-failure labels, and two diagnostic sets derived from TUM RGB-D (514 + 215 images, CC BY 4.0).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Citation</h2>
+<pre class="bib">@article{jiang2026dimed,
+  title   = {What the Averages Hide: Monocular Metric Depth Models Still Fail in Everyday Scenes, Mostly on Scale},
+  author  = {Jiang, Hualie and Luo, Yujie and Song, Ziyang and Li, Ximeng and Lou, Zhiqiang and Xu, Rui},
+  journal = {arXiv preprint arXiv},
+  year    = {2026}
+}</pre>
+</section>
+
+</main>
+<footer class="wrap"><p>DIMED · <a href="https://github.com/antigravity-tech">antigravity-tech</a></p></footer>
+<script src="assets/table2.js"></script>
+<script src="assets/quiz.js"></script>
+<script src="assets/heatmap.js"></script>
+<script src="assets/wall/wall.js"></script>
+<script src="table.js"></script>
+<script src="interactive.js"></script>
+</body>
+</html>
