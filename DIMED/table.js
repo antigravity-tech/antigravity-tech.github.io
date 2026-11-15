@@ -9,7 +9,7 @@ const COLS = [
   { key: 'sa_rel', label: 'Rel ↓', group: 'Structure', fmt: v => v.toFixed(3), dir: 1 },
   { key: 'sa_fail', label: 'Fail. ↓', group: 'Structure', fmt: v => (100 * v).toFixed(1) + '%', dir: 1 },
   { key: 'bias', label: 'Bias (→0)', group: 'Scale (s*)', fmt: v => (v >= 0 ? '+' : '') + v.toFixed(3), dir: 1, abs: true },
-  { key: 'stability', label: 'Stab. ↓', group: 'Scale (s*)', fmt: v => v.toFixed(3), dir: 1 },
+  { key: 'dispersion', label: 'Dispersion ↓', group: 'Scale (s*)', fmt: v => v.toFixed(3), dir: 1 },
   { key: 'abs_err', label: 'Abs. err. ↓', group: 'Scale (s*)', fmt: v => v.toFixed(3), dir: 1 },
 ];
 let DATA = [], sortKey = 'fail', sortDir = 1, cond = 'all';

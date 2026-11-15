@@ -6,7 +6,7 @@
 <title>DIMED · What the Averages Hide</title>
 <meta name="description" content="Monocular metric depth models still fail on everyday scenes, mostly on scale. Per-image failure rates, structure vs. scale, and shared failures for 11 models.">
 <meta property="og:title" content="What the Averages Hide: metric depth models still fail, mostly on scale">
-<meta property="og:description" content="The best of 18 evaluations has mean δ1 0.875, yet 1 in 13 images still fails. 98.3% of failures are a wrong global scale, not a wrong shape.">
+<meta property="og:description" content="The best of 18 evaluations has mean δ1 0.875, yet 1 in 13 images still fails. 78.8% of failures have the right shape and only the wrong scale; correcting one global scale fixes 98.3%.">
 <meta property="og:image" content="assets/quiz_empty_rgb.jpg">
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="../DA360/image/Logo.svg">
@@ -23,9 +23,9 @@
       <span><a href="https://indu1ge.github.io/ziyangsong/">Ziyang Song</a><sup>1</sup></span>,
       <span><a href="https://openreview.net/profile?id=~Ximeng_Li1">Ximeng Li</a><sup>1</sup></span>,
       <span><a href="https://openreview.net/profile?id=~Zhiqiang_Lou1">Zhiqiang Lou</a><sup>1</sup></span>,
-      <span><a href="https://openreview.net/profile?id=~Rui_Xu20">Rui Xu</a><sup>1</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Rui_Xu20">Rui Xu</a><sup>1&dagger;</sup></span>
     </p>
-    <p class="affils"><sup>1</sup>Antigravity Tech, Insta360<span class="sep">·</span><sup>2</sup>Nanyang Technological University</p>
+    <p class="affils"><sup>1</sup>Antigravity Tech, Insta360 &nbsp;&nbsp; <sup>2</sup>Nanyang Technological University</p>
     <nav class="links">
       <a class="btn" href="{{ARXIV_URL}}">Paper (arXiv)</a>
       <a class="btn" href="https://github.com/antigravity-tech/DIMED">Code</a>
@@ -71,8 +71,8 @@
 <section>
   <div class="stats">
     <div class="stat"><span class="num">0.875 <small>yet</small> 1&nbsp;in&nbsp;13</span><span class="lbl">The best of 18 evaluations has mean δ<sub>1</sub> 0.875, yet still fails on 7.7% of images (metric δ<sub>1</sub> &lt; 0.5).</span></div>
-    <div class="stat"><span class="num">98.3%</span><span class="lbl">of those failures pass once a single global scale is corrected. The shape is right; the scale is wrong.</span></div>
-    <div class="stat"><span class="num">~40%</span><span class="lbl">of the top models' error falls on the 7.3% of images that most of the 11 models fail, concentrated in a few scenes.</span></div>
+    <div class="stat"><span class="num">98.3%</span><span class="lbl">of those failures pass once a single global scale is corrected; 78.8% have intact structure and are wrong only in scale.</span></div>
+    <div class="stat"><span class="num">~40%</span><span class="lbl">of the top models' error falls on the 7.3% of images that most of the 11 models fail, against 14% to 18% for the same number of random images; they lie on HAMMER (4 of its 7 scenes) and DIODE.</span></div>
   </div>
 </section>
 
@@ -127,7 +127,7 @@
   <p>Evaluations average a metric score and a scale-aligned score per dataset. DIMED keeps, for every image, the metric δ<sub>1</sub>, the scale-aligned δ<sub>1</sub> and the alignment scale <code>s*</code>, and reports:</p>
   <ul>
     <li><b>Failure rate</b>: how many images are badly wrong, not just the mean.</li>
-    <li><b>Bias, stability, absolute error of ln s*</b>: which way the scale is wrong and whether one global correction would fix it.</li>
+    <li><b>Bias, dispersion, absolute error of ln s*</b>: which way the scale is wrong and whether one global correction would fix it.</li>
     <li><b>Shared vs. model-specific failures</b>: how many models fail on each image.</li>
   </ul>
   <figure><img src="assets/fig2_rel_vs_scale.svg" alt="Per-image metric error against the alignment scale"><figcaption>Per image, metric accuracy is decided mainly by whether <code>s*</code> falls inside [0.8, 1.25] (shaded); errors in structure are small.</figcaption></figure>
@@ -142,7 +142,7 @@
     <label><input type="radio" name="cond" value="noK"> without intrinsics</label>
   </div>
   <div class="tablewrap"><table id="t2"><thead></thead><tbody></tbody></table></div>
-  <p class="note">↑/↓: higher/lower is better; →0: closer to zero is better. Bias = mean(ln(1/s*)), positive = depth overestimated. Stability = std(ln s*) within a dataset.</p>
+  <p class="note">↑/↓: higher/lower is better; →0: closer to zero is better. Bias = mean(ln(1/s*)), positive = depth overestimated. Dispersion = std(ln s*) within a dataset.</p>
   <div class="try">
     <p><b>Try it on your model.</b> Evaluate it with our code, then split its errors by our per-image shared-failure labels, without re-running the 11 baselines:</p>
 <pre>git clone https://github.com/antigravity-tech/DIMED && cd DIMED/eval
@@ -166,7 +166,7 @@ python ../analysis/stratify_new_model.py ../results/shared_failure_labels.csv &l
   <div class="takeaways">
     <div><b>Using metric depth?</b> Do not trust the absolute scale on views without objects of known size (empty tables, blank walls). One known length, or one scale per sequence, fixes most failures, because the shape is usually right.</div>
     <div><b>Building a model?</b> Report the failure rate and the bias of ln s* next to the mean, and check your errors against our shared-failure labels: they show whether you fixed the hard images or only improved the rest.</div>
-    <div><b>Supplying intrinsics?</b> They help the scale, but they are not an upper bound: for models that solve the focal length after the network, true intrinsics can make the structure slightly worse.</div>
+    <div><b>Supplying intrinsics?</b> They raise metric δ<sub>1</sub>, but they are not an upper bound: for models that solve the focal length after the network they lower the scale-aligned δ<sub>1</sub>, and on HAMMER some models (including the ray-input UniK3D) lose metric accuracy with them.</div>
   </div>
 </section>
 
@@ -180,10 +180,10 @@ python ../analysis/stratify_new_model.py ../results/shared_failure_labels.csv &l
 
 <section>
   <h2>Citation</h2>
-<pre class="bib">@article{jiang2026dimed,
+<pre class="bib">@article{jiang2026averages,
   title   = {What the Averages Hide: Monocular Metric Depth Models Still Fail in Everyday Scenes, Mostly on Scale},
   author  = {Jiang, Hualie and Luo, Yujie and Song, Ziyang and Li, Ximeng and Lou, Zhiqiang and Xu, Rui},
-  journal = {arXiv preprint arXiv},
+  journal = {arXiv preprint arXiv:{{ARXIV_ID}}},
   year    = {2026}
 }</pre>
 </section>
