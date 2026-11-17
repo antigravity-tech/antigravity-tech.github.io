@@ -27,7 +27,7 @@
     </p>
     <p class="affils"><sup>1</sup>Antigravity Tech, Insta360 &nbsp;&nbsp; <sup>2</sup>Nanyang Technological University</p>
     <nav class="links">
-      <a class="btn" href="{{ARXIV_URL}}">Paper (arXiv)</a>
+      <a class="btn" href="https://arxiv.org/abs/2611.20518">Paper (arXiv)</a>
       <a class="btn" href="https://github.com/antigravity-tech/DIMED">Code</a>
       <a class="btn" href="https://huggingface.co/datasets/hljiang/DIMED">Data</a>
     </nav>
@@ -53,18 +53,18 @@
 <section>
   <h2>Same table, same model: objects can fix the scale, but not always</h2>
   <div class="compare-switch">
-    <button class="on" data-target="cmp" data-set="empty" data-cbar="assets/quiz_colorbar.png" data-cap="Empty table. Drag: left = ground truth, right = MoGe-2. MoGe-2 places the table <b>2.8× too far</b> (δ<sub>1</sub> 0.00).">empty table</button>
-    <button data-target="cmp" data-set="objects" data-cbar="assets/quiz_colorbar.png" data-cap="Objects added, same view. MoGe-2 is now nearly right: 0.61 m for a true 0.65 m (δ<sub>1</sub> 0.94).">same view, objects added</button>
-    <button data-target="cmp" data-set="other" data-cbar="assets/quiz_other_colorbar.png" data-cap="Another table, with cans, a jug and boxes in view. MoGe-2 still places it <b>1.4× too far</b> (0.83 m for a true 0.58 m, δ<sub>1</sub> 0.00), and with ground-truth intrinsics 10 of the 11 architectures fail on this image too (only MA-DepthMap passes). Objects help, but they do not guarantee the right scale.">another table with objects</button>
+    <button class="on" data-target="cmp" data-set="empty" data-cbar="assets/quiz_colorbar.png" data-cap="Empty table. Drag: left = ground truth, right = MoGe-2 (given the true intrinsics). MoGe-2 places the table <b>3.5× too far</b> (2.63 m for a true 0.76 m, δ<sub>1</sub> 0.00); all 18 model evaluations fail on this image.">empty table</button>
+    <button data-target="cmp" data-set="objects" data-cbar="assets/quiz_colorbar.png" data-cap="Objects added, same view. MoGe-2 is now nearly right: 0.71 m for a true 0.65 m (δ<sub>1</sub> 0.95).">same view, objects added</button>
+    <button data-target="cmp" data-set="other" data-cbar="assets/quiz_other_colorbar.png" data-cap="Another table, with cans, a jug and boxes in view. MoGe-2 still places it <b>1.5× too far</b> (0.90 m for a true 0.58 m, δ<sub>1</sub> 0.00), and 10 of the 11 architectures with intrinsics fail on this image too (only MA-DepthMap passes). Objects help, but they do not guarantee the right scale.">another table with objects</button>
   </div>
   <div class="compare" id="cmp">
     <img class="layer base" src="assets/quiz_empty_pred.jpg" data-empty="assets/quiz_empty_pred.jpg" data-objects="assets/quiz_objects_pred.jpg" data-other="assets/quiz_other_pred.jpg" alt="MoGe-2 depth">
     <img class="layer top" src="assets/quiz_empty_gt.jpg" data-empty="assets/quiz_empty_gt.jpg" data-objects="assets/quiz_objects_gt.jpg" data-other="assets/quiz_other_gt.jpg" alt="ground-truth depth">
     <div class="handle"><span>⇆</span></div>
-    <span class="tagl">ground truth</span><span class="tagr">MoGe-2</span>
+    <span class="tagl">ground truth</span><span class="tagr">MoGe-2 (with K)</span>
   </div>
   <img class="cbar" id="cmp-cbar" src="assets/quiz_colorbar.png" alt="depth colour scale">
-  <p class="note" id="cmp-cap">Empty table. Drag: left = ground truth, right = MoGe-2. MoGe-2 places the table <b>2.8× too far</b> (δ<sub>1</sub> 0.00).</p>
+  <p class="note" id="cmp-cap">Empty table. Drag: left = ground truth, right = MoGe-2 (given the true intrinsics). MoGe-2 places the table <b>3.5× too far</b> (2.63 m for a true 0.76 m, δ<sub>1</sub> 0.00); all 18 model evaluations fail on this image.</p>
   <p class="lead">The geometry is right in all three: what the model lacks is a reliable cue for <b>how big</b> the scene is.</p>
 </section>
 
@@ -78,7 +78,7 @@
 
 <section>
   <h2>Why it matters</h2>
-  <p>A robot that grasps, an AR app that places furniture, or a SLAM system initialised from one frame needs metres, not relative depth. A depth map with the right shape but 2.8× the wrong scale puts the cup out of reach. Dataset averages hide this: a model can score well on average while a fixed set of everyday views, such as an empty table or a blank wall, defeats it every time.</p>
+  <p>A robot that grasps, an AR app that places furniture, or a SLAM system initialised from one frame needs metres, not relative depth. A depth map with the right shape but 3.5× the wrong scale puts the cup out of reach. Dataset averages hide this: a model can score well on average while a fixed set of everyday views, such as an empty table or a blank wall, defeats it every time.</p>
 </section>
 
 
@@ -183,7 +183,7 @@ python ../analysis/stratify_new_model.py ../results/shared_failure_labels.csv &l
 <pre class="bib">@article{jiang2026averages,
   title   = {What the Averages Hide: Monocular Metric Depth Models Still Fail in Everyday Scenes, Mostly on Scale},
   author  = {Jiang, Hualie and Luo, Yujie and Song, Ziyang and Li, Ximeng and Lou, Zhiqiang and Xu, Rui},
-  journal = {arXiv preprint arXiv:{{ARXIV_ID}}},
+  journal = {arXiv preprint arXiv:2611.20518},
   year    = {2026}
 }</pre>
 </section>

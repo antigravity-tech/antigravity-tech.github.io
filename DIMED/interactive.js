@@ -17,7 +17,7 @@
       const you = g / e.gt;
       out.innerHTML =
         `<p>True median distance: <b>${e.gt.toFixed(2)} m</b>. You were off by <b>${(you >= 1 ? you : 1 / you).toFixed(1)}×</b>. ` +
-        `MoGe-2 said <b>${e.pred.toFixed(2)} m</b> (${(e.pred / e.gt).toFixed(1)}× too far, δ<sub>1</sub> ${e.d1.toFixed(2)}).</p>` +
+        `MoGe-2, given the true intrinsics, said <b>${e.pred.toFixed(2)} m</b> (${(e.pred / e.gt).toFixed(1)}× too far, δ<sub>1</sub> ${e.d1.toFixed(2)}); all 18 model evaluations fail on this image.</p>` +
         `<p>With a few objects on the same table, MoGe-2 says <b>${o.pred.toFixed(2)} m</b> for a true ${o.gt.toFixed(2)} m (δ<sub>1</sub> ${o.d1.toFixed(2)}).` +
         ` Without anything of known size in view, the absolute distance is hard to tell, for people and for models.</p>`;
       qs.classList.add('revealed');
